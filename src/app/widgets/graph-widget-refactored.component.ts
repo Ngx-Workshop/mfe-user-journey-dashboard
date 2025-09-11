@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 
@@ -20,7 +20,7 @@ interface ChartSeries {
 
 @Component({
   selector: 'ngx-graph-widget',
-  imports: [CommonModule, MatExpansionModule, NgxChartsModule],
+  imports: [MatExpansionModule, NgxChartsModule],
   template: `
     @if(isVisible()) {
     <div class="graph-widget">

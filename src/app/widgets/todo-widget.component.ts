@@ -21,51 +21,58 @@ interface TodoItem {
   template: `
     <div class="todo-widget">
       <h2>{{ widgetTitle() }}</h2>
-
+    
       <!-- Quick Actions -->
       <div class="quick-actions" [routerLink]="['/assessment-test']">
         <img src="../../../assets/img/nestjs2.svg" alt="NestJS" />
         <img
           src="../../../assets/img/angular_nav_gradient.gif"
           alt="Angular"
-        />
+          />
         <img src="../../../assets/img/rxjs1.svg" alt="RxJS" />
       </div>
-
+    
       <!-- Todo List -->
-      <div class="todo-list" *ngIf="todos().length > 0">
-        <div
-          class="todo-item"
-          *ngFor="let todo of todos(); trackBy: trackTodo"
+      @if (todos().length > 0) {
+        <div class="todo-list">
+          @for (todo of todos(); track trackTodo($index, todo)) {
+            <div
+              class="todo-item"
           [ngClass]="{
             completed: todo.completed,
             'high-priority': todo.priority === 'high'
           }"
-        >
-          <input
-            type="checkbox"
-            [checked]="todo.completed"
-            (change)="toggleTodo(todo.id)"
-          />
-          <div class="todo-content">
-            <h4>{{ todo.title }}</h4>
-            <p>{{ todo.description }}</p>
-            <small *ngIf="todo.dueDate"
-              >Due: {{ todo.dueDate | date : 'short' }}</small
-            >
+              >
+              <input
+                type="checkbox"
+                [checked]="todo.completed"
+                (change)="toggleTodo(todo.id)"
+                />
+              <div class="todo-content">
+                <h4>{{ todo.title }}</h4>
+                <p>{{ todo.description }}</p>
+                @if (todo.dueDate) {
+                  <small
+                    >Due: {{ todo.dueDate | date : 'short' }}</small
+                    >
+                  }
+                </div>
+              </div>
+            }
           </div>
-        </div>
+        }
+    
+        <!-- Empty State -->
+        @if (todos().length === 0) {
+          <div class="empty-state">
+            <h3>{{ emptyMessage() }}</h3>
+            <p>
+              Start by taking some assessment tests to see your progress.
+            </p>
+          </div>
+        }
       </div>
-
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="todos().length === 0">
-        <h3>{{ emptyMessage() }}</h3>
-        <p>
-          Start by taking some assessment tests to see your progress.
-        </p>
-      </div>
-    </div>
-  `,
+    `,
   styles: [
     `
       .todo-widget {

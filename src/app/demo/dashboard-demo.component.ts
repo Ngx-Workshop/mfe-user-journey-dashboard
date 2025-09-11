@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,11 +20,10 @@ import {
   selector: 'ngx-dashboard-demo',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
-    WidgetDashboardComponent,
-  ],
+    WidgetDashboardComponent
+],
   template: `
     <div class="demo-container">
       <!-- Header -->

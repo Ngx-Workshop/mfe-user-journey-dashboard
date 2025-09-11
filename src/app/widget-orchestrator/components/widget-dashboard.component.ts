@@ -3,7 +3,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -36,7 +36,6 @@ import { WidgetContainerComponent } from './widget-container.component';
   selector: 'ngx-widget-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     DragDropModule,
     MatButtonModule,
     MatIconModule,
@@ -44,50 +43,50 @@ import { WidgetContainerComponent } from './widget-container.component';
     MatMenuModule,
     MatDividerModule,
     MatTooltipModule,
-    WidgetContainerComponent,
-  ],
+    WidgetContainerComponent
+],
   template: `
     <div class="dashboard-container">
       <!-- Dashboard Toolbar -->
       <mat-toolbar color="primary" class="dashboard-toolbar">
         <!-- <span>{{ dashboardTitle() }}</span> -->
-
+    
         <div class="toolbar-spacer"></div>
-
+    
         <!-- Dashboard Actions -->
         <button
           mat-icon-button
           [matMenuTriggerFor]="addWidgetMenu"
           matTooltip="Add Widget"
-        >
+          >
           <mat-icon>add</mat-icon>
         </button>
-
+    
         <button
           mat-icon-button
           (click)="saveLayout()"
           matTooltip="Save Layout"
-        >
+          >
           <mat-icon>save</mat-icon>
         </button>
-
+    
         <button
           mat-icon-button
           (click)="compactLayout()"
           matTooltip="Compact Layout"
-        >
+          >
           <mat-icon>grid_view</mat-icon>
         </button>
-
+    
         <button
           mat-icon-button
           [matMenuTriggerFor]="dashboardMenu"
           matTooltip="Dashboard Options"
-        >
+          >
           <mat-icon>more_vert</mat-icon>
         </button>
       </mat-toolbar>
-
+    
       <!-- Draggable Grid Container -->
       <div class="grid-container" [style.padding.px]="gridMargin()">
         <div
@@ -99,92 +98,96 @@ import { WidgetContainerComponent } from './widget-container.component';
             'repeat(' + gridCols() + ', 1fr)'
           "
           [style.gap.px]="gridGutter()"
-        >
+          >
           @for (widget of widgets(); track widget.id) {
-          <div
-            class="widget-item"
-            cdkDrag
-            [style.grid-column]="'span ' + widget.config.layout.cols"
-            [style.grid-row]="'span ' + widget.config.layout.rows"
+            <div
+              class="widget-item"
+              cdkDrag
+              [style.grid-column]="'span ' + widget.config.layout.cols"
+              [style.grid-row]="'span ' + widget.config.layout.rows"
             [style.min-height.px]="
               gridRowHeight() * widget.config.layout.rows +
               gridGutter() * (widget.config.layout.rows - 1)
             "
-          >
-            <div
-              class="drag-handle"
-              cdkDragHandle
-              matTooltip="Drag to move widget"
+              >
+              <div
+                class="drag-handle"
+                cdkDragHandle
+                matTooltip="Drag to move widget"
               [style.display]="
                 widget.config.movable === false ? 'none' : 'flex'
               "
-            >
-              <mat-icon>drag_indicator</mat-icon>
-            </div>
-
-            <ngx-widget-container
-              [instance]="widget"
-              [showHeader]="true"
-              [showActions]="true"
-              [allowResize]="true"
-              [allowMove]="true"
-              [allowRemove]="true"
-              [allowConfigure]="true"
-              class="widget-container-wrapper"
-            ></ngx-widget-container>
-
-            <div class="drag-placeholder" *cdkDragPlaceholder>
-              <div class="placeholder-content">
-                <mat-icon>dashboard</mat-icon>
-                <span>Drop here</span>
+                >
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+    
+              <ngx-widget-container
+                [instance]="widget"
+                [showHeader]="true"
+                [showActions]="true"
+                [allowResize]="true"
+                [allowMove]="true"
+                [allowRemove]="true"
+                [allowConfigure]="true"
+                class="widget-container-wrapper"
+              ></ngx-widget-container>
+    
+              <div class="drag-placeholder" *cdkDragPlaceholder>
+                <div class="placeholder-content">
+                  <mat-icon>dashboard</mat-icon>
+                  <span>Drop here</span>
+                </div>
               </div>
             </div>
-          </div>
           }
         </div>
       </div>
-
+    
       <!-- Empty State -->
-      <div class="empty-state" *ngIf="widgets().length === 0">
-        <mat-icon class="empty-icon">dashboard</mat-icon>
-        <h2>Welcome to Your Dashboard</h2>
-        <p>Start by adding your first widget!</p>
-        <button
-          mat-raised-button
-          color="primary"
-          [matMenuTriggerFor]="addWidgetMenu"
-        >
-          <mat-icon>add</mat-icon>
-          Add Widget
-        </button>
-      </div>
-
+      @if (widgets().length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">dashboard</mat-icon>
+          <h2>Welcome to Your Dashboard</h2>
+          <p>Start by adding your first widget!</p>
+          <button
+            mat-raised-button
+            color="primary"
+            [matMenuTriggerFor]="addWidgetMenu"
+            >
+            <mat-icon>add</mat-icon>
+            Add Widget
+          </button>
+        </div>
+      }
+    
       <!-- Add Widget Menu -->
       <mat-menu #addWidgetMenu="matMenu">
         <div class="widget-menu-header">
           <h3>Available Widgets</h3>
         </div>
         @for (category of availableCategories(); track category) {
-        <div class="widget-category">
-          <h4>{{ category }}</h4>
-          @for (definition of getWidgetsByCategory(category); track
-          definition.type) {
-          <button
-            mat-menu-item
-            (click)="addWidget(definition)"
-            class="widget-menu-item"
-          >
-            <mat-icon *ngIf="definition.icon">{{
-              definition.icon
-            }}</mat-icon>
-            <span>{{ definition.name }}</span>
-            <small>{{ definition.description }}</small>
-          </button>
-          }
-        </div>
+          <div class="widget-category">
+            <h4>{{ category }}</h4>
+            @for (definition of getWidgetsByCategory(category); track
+              definition.type) {
+              <button
+                mat-menu-item
+                (click)="addWidget(definition)"
+                class="widget-menu-item"
+                >
+                @if (definition.icon) {
+                  <mat-icon>{{
+                    definition.icon
+                  }}</mat-icon>
+                }
+                <span>{{ definition.name }}</span>
+                <small>{{ definition.description }}</small>
+              </button>
+            }
+          </div>
         }
       </mat-menu>
-
+    
       <!-- Dashboard Menu -->
       <mat-menu #dashboardMenu="matMenu">
         <button mat-menu-item (click)="resetLayout()">
@@ -206,7 +209,7 @@ import { WidgetContainerComponent } from './widget-container.component';
         </button>
       </mat-menu>
     </div>
-  `,
+    `,
   styles: [
     `
       .dashboard-container {

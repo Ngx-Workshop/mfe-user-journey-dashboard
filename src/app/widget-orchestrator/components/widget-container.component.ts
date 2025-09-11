@@ -57,38 +57,40 @@ import { WidgetOrchestratorService } from '../services/widget-orchestrator.servi
       [style]="containerStyles()"
     >
       <!-- Widget Header -->
-      <mat-card-title class="widget-header" *ngIf="showHeader">
+      @if (showHeader) {
+      <mat-card-title class="widget-header">
         <!-- Widget Icon -->
-        <mat-icon *ngIf="widgetIcon()" class="widget-icon">
+        @if (widgetIcon()) {
+        <mat-icon class="widget-icon">
           {{ widgetIcon() }}
         </mat-icon>
-
+        }
         <!-- Widget Title -->
         <span class="widget-title">{{ widgetTitle() }}</span>
-
         <!-- Widget Actions -->
-        <div class="widget-actions" *ngIf="showActions">
+        @if (showActions) {
+        <div class="widget-actions">
           <!-- Refresh Button -->
+          @if (canRefresh()) {
           <button
             mat-icon-button
-            *ngIf="canRefresh()"
             (click)="refreshWidget()"
             [disabled]="isLoading()"
             matTooltip="Refresh Widget"
           >
             <mat-icon>refresh</mat-icon>
           </button>
-
+          }
           <!-- Settings Menu -->
+          @if (canConfigure()) {
           <button
             mat-icon-button
             [matMenuTriggerFor]="settingsMenu"
-            *ngIf="canConfigure()"
             matTooltip="Widget Settings"
           >
             <mat-icon>settings</mat-icon>
           </button>
-
+          }
           <!-- More Options Menu -->
           <button
             mat-icon-button
@@ -98,36 +100,45 @@ import { WidgetOrchestratorService } from '../services/widget-orchestrator.servi
             <mat-icon>more_vert</mat-icon>
           </button>
         </div>
+        }
       </mat-card-title>
+      }
 
       <!-- Widget Content -->
       <mat-card-content class="widget-content">
         <!-- Loading State -->
-        <div class="widget-loading-overlay" *ngIf="isLoading()">
+        @if (isLoading()) {
+        <div class="widget-loading-overlay">
           <mat-spinner diameter="40"></mat-spinner>
           <p>{{ loadingMessage() }}</p>
         </div>
+        }
 
         <!-- Error State -->
-        <div class="widget-error-content" *ngIf="hasError()">
+        @if (hasError()) {
+        <div class="widget-error-content">
           <mat-icon class="error-icon">error</mat-icon>
           <h3>Widget Error</h3>
           <p>{{ errorMessage() }}</p>
+          @if (canRetry()) {
           <button
             mat-raised-button
             color="primary"
             (click)="retryWidget()"
-            *ngIf="canRetry()"
           >
             Retry
           </button>
+          }
         </div>
+        }
 
         <!-- Widget Component Container -->
+        @if(!hasError() && !isLoading()) {
         <div
           class="widget-component-container"
           #widgetContainer
         ></div>
+        }
       </mat-card-content>
 
       <!-- Settings Menu -->
@@ -153,15 +164,16 @@ import { WidgetOrchestratorService } from '../services/widget-orchestrator.servi
           <span>Export</span>
         </button>
         <mat-divider></mat-divider>
+        @if (canRemove()) {
         <button
           mat-menu-item
           (click)="removeWidget()"
-          *ngIf="canRemove()"
           class="warning"
         >
           <mat-icon>delete</mat-icon>
           <span>Remove</span>
         </button>
+        }
       </mat-menu>
     </mat-card>
   `,
