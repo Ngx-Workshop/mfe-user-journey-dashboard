@@ -1,6 +1,5 @@
 import {
   BreakpointObserver,
-  Breakpoints,
   LayoutModule,
 } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
@@ -9,26 +8,20 @@ import {
   Component,
   Directive,
   inject,
-  input,
   Input,
   OnInit,
-  signal,
   Type,
   ViewContainerRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import {
-  AssessmentTestService,
-  SubjectLevel,
-} from '../assessment-test.service';
+import { AssessmentTestService } from '../assessment-test.service';
 import { GraphWidgetComponent } from '../widgets/graph-widget.component';
 import { TestsInfoWidgetComponent } from '../widgets/tests-info-widget.component';
 import { TodoWidgetComponent } from '../widgets/todo-widget.component';
@@ -58,16 +51,6 @@ export class DynamicWidgetDirective implements OnInit {
       Object.assign(componentRef.instance, this.data);
     }
   }
-}
-
-@Component({
-  selector: 'app-some-widget',
-  imports: [CommonModule, MatExpansionModule],
-  template: ` <pre>{{ data() | json }}</pre> `,
-})
-export class SomeWidgetComponent {
-  panelOpenState = signal(false);
-  data = input.required<SubjectLevel[]>();
 }
 
 @Component({
@@ -161,7 +144,6 @@ export class DynamicGridListComponent {
   }
 
   widgets = combineLatest([
-    this.breakpointObserver.observe(Breakpoints.Handset),
     this.assessmentTest.fetchUsersAssessments(),
     this.assessmentTest.fetchUserSubjectsEligibility([
       'ANGULAR',
@@ -169,21 +151,8 @@ export class DynamicGridListComponent {
       'RXJS',
     ]),
   ]).pipe(
-    map(([{ matches }, assessmentTests, subjectLevels]) => {
+    map(([assessmentTests, subjectLevels]) => {
       const testInfoWidgetData = { assessmentTests, subjectLevels };
-
-      if (matches) {
-        return [
-          {
-            id: 'widget1',
-            title: 'Test Widget',
-            componentType: SomeWidgetComponent,
-            data: testInfoWidgetData,
-            cols: 1,
-            rows: 1,
-          },
-        ];
-      }
       return [
         {
           id: 'widget1',
@@ -208,14 +177,6 @@ export class DynamicGridListComponent {
           data: testInfoWidgetData,
           cols: 1,
           rows: 2,
-        },
-        {
-          id: 'widget4',
-          title: 'Test Widget 4',
-          componentType: SomeWidgetComponent,
-          data: testInfoWidgetData,
-          cols: 1,
-          rows: 1,
         },
       ];
     })

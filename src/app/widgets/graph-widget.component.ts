@@ -116,7 +116,7 @@ export var multi = [
       :host {
         display: block;
         // max-height: 324px;
-        // padding-top: 24px;
+        // margin-bottom: 24px;
 
         &::ng-deep .ngx-charts .gridline-path {
           color: var(--mat-sys-on-secondary-container) !important;

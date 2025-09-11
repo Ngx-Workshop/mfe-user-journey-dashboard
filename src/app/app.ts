@@ -6,7 +6,7 @@ import {
 } from '@angular/animations';
 import { Component } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { DynamicGridListComponent } from './dynamic-grid-list/dynamic-grid-list.component';
+import { DashboardDemoComponent } from './demo/dashboard-demo.component';
 
 export const slideInAnimation = trigger('routeAnimations', [
   transition('* <=> *', [
@@ -17,8 +17,8 @@ export const slideInAnimation = trigger('routeAnimations', [
 
 @Component({
   selector: 'mfe-user-journey-dashboard',
-  imports: [DynamicGridListComponent],
-  template: `<ngx-dynamic-grid-list></ngx-dynamic-grid-list>`,
+  imports: [DashboardDemoComponent],
+  template: `<ngx-dashboard-demo></ngx-dashboard-demo>`,
 })
 export class OverviewComponent {}
 
