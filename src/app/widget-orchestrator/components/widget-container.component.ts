@@ -190,7 +190,7 @@ import { WidgetOrchestratorService } from '../services/widget-orchestrator.servi
       }
 
       .widget-container.widget-error {
-        border-left: 4px solid #f44336;
+        border-left: 2px solid #f44336;
       }
 
       .widget-container.widget-loading {
@@ -439,14 +439,24 @@ export class WidgetContainerComponent implements OnInit, OnDestroy {
 
       // Wait for view to be ready
       setTimeout(async () => {
-        if (this.widgetContainer) {
-          await this.orchestrator.loadWidgetComponent(
-            this.instance,
-            this.widgetContainer
-          );
-          this._state.set(WidgetState.LOADED);
+        try {
+          if (this.widgetContainer) {
+            await this.orchestrator.loadWidgetComponent(
+              this.instance,
+              this.widgetContainer
+            );
+            this._state.set(WidgetState.LOADED);
+          }
+        } catch (loadError) {
+          console.error('Widget loading failed:', loadError);
+          this.handleError({
+            code: 'LOAD_FAILED',
+            message: `Failed to load widget: ${loadError}`,
+            timestamp: new Date(),
+            recoverable: true,
+          });
         }
-      });
+      }, 100);
     } catch (error) {
       this.handleError({
         code: 'LOAD_FAILED',

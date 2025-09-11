@@ -1,4 +1,3 @@
-
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,11 +18,7 @@ import {
 @Component({
   selector: 'ngx-dashboard-demo',
   standalone: true,
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    WidgetDashboardComponent
-],
+  imports: [MatButtonModule, MatIconModule, WidgetDashboardComponent],
   template: `
     <div class="demo-container">
       <!-- Header -->
@@ -183,7 +178,7 @@ export class DashboardDemoComponent implements OnInit {
   private setupDataProviders(): void {
     // Register data providers with the orchestrator
     this.orchestrator.registerDataProvider(
-      new AssessmentDataProvider()
+      inject(AssessmentDataProvider)
     );
     this.orchestrator.registerDataProvider(new StaticDataProvider());
     this.orchestrator.registerDataProvider(new ApiDataProvider());
