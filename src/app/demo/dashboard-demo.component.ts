@@ -28,7 +28,7 @@ import {
   template: `
     <div class="demo-container">
       <!-- Header -->
-      <div class="demo-header">
+      <!-- <div class="demo-header">
         <h1>Angular Widget Orchestrator Demo</h1>
         <p>
           A complete widget orchestration system with dynamic loading,
@@ -49,7 +49,7 @@ import {
             Reset Demo
           </button>
         </div>
-      </div>
+      </div> -->
 
       <!-- Widget Dashboard -->
       <ngx-widget-dashboard
@@ -66,7 +66,11 @@ import {
         height: 100vh;
         display: flex;
         flex-direction: column;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        // background: linear-gradient(
+        //   135deg,
+        //   var(--mat-sys-secondary-fixed-dim) 0%,
+        //   var(--mat-sys-secondary-container) 100%
+        // );
       }
 
       .demo-header {

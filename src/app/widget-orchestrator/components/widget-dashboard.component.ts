@@ -1,3 +1,8 @@
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -11,11 +16,11 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, combineLatest } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 
@@ -32,19 +37,20 @@ import { WidgetContainerComponent } from './widget-container.component';
   standalone: true,
   imports: [
     CommonModule,
-    MatGridListModule,
+    DragDropModule,
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,
     MatMenuModule,
     MatDividerModule,
+    MatTooltipModule,
     WidgetContainerComponent,
   ],
   template: `
     <div class="dashboard-container">
       <!-- Dashboard Toolbar -->
       <mat-toolbar color="primary" class="dashboard-toolbar">
-        <span>{{ dashboardTitle() }}</span>
+        <!-- <span>{{ dashboardTitle() }}</span> -->
 
         <div class="toolbar-spacer"></div>
 
@@ -82,19 +88,40 @@ import { WidgetContainerComponent } from './widget-container.component';
         </button>
       </mat-toolbar>
 
-      <!-- Grid Container -->
+      <!-- Draggable Grid Container -->
       <div class="grid-container" [style.padding.px]="gridMargin()">
-        <mat-grid-list
-          [cols]="gridCols()"
-          [rowHeight]="gridRowHeight() + 'px'"
-          [gutterSize]="gridGutter() + 'px'"
+        <div
+          class="draggable-grid"
+          cdkDropList
+          [cdkDropListData]="widgets()"
+          (cdkDropListDropped)="onWidgetDrop($event)"
+          [style.grid-template-columns]="
+            'repeat(' + gridCols() + ', 1fr)'
+          "
+          [style.gap.px]="gridGutter()"
         >
           @for (widget of widgets(); track widget.id) {
-          <mat-grid-tile
-            [colspan]="widget.config.layout.cols"
-            [rowspan]="widget.config.layout.rows"
-            class="widget-tile"
+          <div
+            class="widget-item"
+            cdkDrag
+            [style.grid-column]="'span ' + widget.config.layout.cols"
+            [style.grid-row]="'span ' + widget.config.layout.rows"
+            [style.min-height.px]="
+              gridRowHeight() * widget.config.layout.rows +
+              gridGutter() * (widget.config.layout.rows - 1)
+            "
           >
+            <div
+              class="drag-handle"
+              cdkDragHandle
+              matTooltip="Drag to move widget"
+              [style.display]="
+                widget.config.movable === false ? 'none' : 'flex'
+              "
+            >
+              <mat-icon>drag_indicator</mat-icon>
+            </div>
+
             <ngx-widget-container
               [instance]="widget"
               [showHeader]="true"
@@ -105,9 +132,16 @@ import { WidgetContainerComponent } from './widget-container.component';
               [allowConfigure]="true"
               class="widget-container-wrapper"
             ></ngx-widget-container>
-          </mat-grid-tile>
+
+            <div class="drag-placeholder" *cdkDragPlaceholder>
+              <div class="placeholder-content">
+                <mat-icon>dashboard</mat-icon>
+                <span>Drop here</span>
+              </div>
+            </div>
+          </div>
           }
-        </mat-grid-list>
+        </div>
       </div>
 
       <!-- Empty State -->
@@ -293,6 +327,113 @@ import { WidgetContainerComponent } from './widget-container.component';
       mat-grid-tile {
         background-color: transparent;
       }
+
+      /* Draggable Grid Styles */
+      .draggable-grid {
+        display: grid;
+        width: 100%;
+        min-height: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      .widget-item {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+        background-color: transparent;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .widget-item.cdk-drag-animating {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      .widget-item.cdk-drag-dragging {
+        z-index: 1000;
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        // background-color: #ffffff;
+      }
+
+      .drag-handle {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 50%;
+        cursor: grab;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .widget-item:hover .drag-handle {
+        opacity: 1;
+      }
+
+      .drag-handle:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .drag-handle:active {
+        cursor: grabbing;
+      }
+
+      .drag-handle mat-icon {
+        font-size: 18px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .widget-container-wrapper {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        min-height: 200px;
+      }
+
+      .drag-placeholder {
+        background: rgba(0, 0, 0, 0.1);
+        border: 2px dashed rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        transition: all 0.2s ease;
+      }
+
+      .placeholder-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: rgba(0, 0, 0, 0.5);
+      }
+
+      .placeholder-content mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 8px;
+      }
+
+      .placeholder-content span {
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* CDK Drop List Styles */
+      .cdk-drop-list-dragging
+        .widget-item:not(.cdk-drag-placeholder) {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -457,6 +598,33 @@ export class WidgetDashboardComponent implements OnInit, OnDestroy {
     this.updateDashboardFromLayout();
 
     this.snackBar.open('Layout reset', 'Dismiss', { duration: 3000 });
+  }
+
+  /**
+   * Handle widget drag and drop
+   */
+  onWidgetDrop(event: CdkDragDrop<any>): void {
+    if (event.previousIndex !== event.currentIndex) {
+      const widgets = [...this.widgets()];
+      moveItemInArray(
+        widgets,
+        event.previousIndex,
+        event.currentIndex
+      );
+
+      // Update the dashboard config with new order
+      this._dashboardConfig.update((config) => ({
+        ...config,
+        widgets,
+      }));
+
+      // Update layout manager with new widget order
+      this.layoutManager.updateDashboardConfig({ widgets });
+
+      this.snackBar.open('Widget moved', 'Dismiss', {
+        duration: 2000,
+      });
+    }
   }
 
   /**

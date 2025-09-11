@@ -127,7 +127,6 @@ import { WidgetOrchestratorService } from '../services/widget-orchestrator.servi
         <div
           class="widget-component-container"
           #widgetContainer
-          *ngIf="!hasError() && !isLoading()"
         ></div>
       </mat-card-content>
 
