@@ -1,13 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import {
-  BehaviorSubject,
-  catchError,
-  forkJoin,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, forkJoin, of, switchMap, tap } from 'rxjs';
 
 export interface IUserAssessmentTest {
   _id: string;
@@ -98,20 +91,22 @@ export class AssessmentTestService {
   }
 
   fetchUserSubjectsEligibility(subjects: string[]) {
-    return this.httpClient
-      .get<SubjectLevel[]>(
-        `/api/assessment-test/user-subjects-eligibility?subjects=${subjects.join(
-          ','
-        )}`
-      )
-      .pipe(catchError(() => of([])));
+    // return this.httpClient
+    //   .get<SubjectLevel[]>(
+    //     `/api/assessment-test/user-subjects-eligibility?subjects=${subjects.join(
+    //       ','
+    //     )}`
+    //   )
+    //   .pipe(catchError(() => of([])));
+    return of([]); // Temporarily disable until backend is fixed
   }
 
   fetchUsersAssessments() {
-    return this.httpClient
-      .get<IUserAssessmentTest[]>(
-        '/api/assessment-test/user-asssessments'
-      )
-      .pipe(catchError(() => of([])));
+    // return this.httpClient
+    //   .get<IUserAssessmentTest[]>(
+    //     '/api/assessment-test/user-asssessments'
+    //   )
+    //   .pipe(catchError(() => of([])));
+    return of([]); // Temporarily disable until backend is fixed
   }
 }

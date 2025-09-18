@@ -4,9 +4,11 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { DashboardDemoComponent } from './demo/dashboard-demo.component';
+
+import { NgxUserMetadataService } from '@tmdjr/ngx-user-metadata';
 
 export const slideInAnimation = trigger('routeAnimations', [
   transition('* <=> *', [
@@ -41,6 +43,13 @@ export class OverviewComponent {}
   ],
 })
 export class App {
+  userMetadataService = inject(NgxUserMetadataService);
+  ngOnInit() {
+    console.log('Dashboard MFE initialized');
+    console.log(this.userMetadataService.userMetadata());
+    console.log(this.userMetadataService.userAuthenticated());
+    console.log('_________________________________________');
+  }
   prepareRoute(outlet: RouterOutlet) {
     return (
       outlet &&

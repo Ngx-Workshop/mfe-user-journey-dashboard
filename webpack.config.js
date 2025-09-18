@@ -62,5 +62,12 @@ module.exports = withModuleFederationPlugin({
       strictVersion: true,
       requiredVersion: '2.8.1',
     },
+
+    // Metadata service
+    '@tmdjr/ngx-user-metadata': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '^0.0.6',
+    },
   },
 });

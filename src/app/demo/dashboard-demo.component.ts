@@ -115,6 +115,7 @@ export class DashboardDemoComponent implements OnInit {
   private readonly registry = inject(WidgetRegistryService);
   private readonly communication = inject(WidgetCommunicationService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly assessmentService = inject(AssessmentDataProvider);
 
   ngOnInit(): void {
     this.setupDataProviders();
@@ -177,9 +178,7 @@ export class DashboardDemoComponent implements OnInit {
    */
   private setupDataProviders(): void {
     // Register data providers with the orchestrator
-    this.orchestrator.registerDataProvider(
-      inject(AssessmentDataProvider)
-    );
+    this.orchestrator.registerDataProvider(this.assessmentService);
     this.orchestrator.registerDataProvider(new StaticDataProvider());
     this.orchestrator.registerDataProvider(new ApiDataProvider());
   }
