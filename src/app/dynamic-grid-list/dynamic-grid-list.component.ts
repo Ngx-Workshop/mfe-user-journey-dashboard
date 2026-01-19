@@ -22,7 +22,7 @@ import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { AssessmentTestService } from '../assessment-test.service';
-import { GraphWidgetComponent } from '../widgets/graph-widget.component';
+// import { GraphWidgetComponent } from '../widgets/graph-widget.component';
 import { TestsInfoWidgetComponent } from '../widgets/tests-info-widget.component';
 import { TodoWidgetComponent } from '../widgets/todo-widget.component';
 
@@ -154,14 +154,14 @@ export class DynamicGridListComponent {
     map(([assessmentTests, subjectLevels]) => {
       const testInfoWidgetData = { assessmentTests, subjectLevels };
       return [
-        {
-          id: 'widget1',
-          title: 'Test Widget',
-          componentType: GraphWidgetComponent,
-          data: testInfoWidgetData,
-          cols: 2,
-          rows: 1,
-        },
+        // {
+        //   id: 'widget1',
+        //   title: 'Test Widget',
+        //   componentType: GraphWidgetComponent,
+        //   data: testInfoWidgetData,
+        //   cols: 2,
+        //   rows: 1,
+        // },
         {
           id: 'widget2',
           title: 'Test Widget 2',

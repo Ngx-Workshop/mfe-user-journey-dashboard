@@ -1457,32 +1457,32 @@ export class WidgetDashboardComponent implements OnInit, OnDestroy {
             (m) => m.TodoWidgetComponent
           ),
       },
-      {
-        type: 'graph-widget',
-        name: 'Progress Chart',
-        description: 'Visualize your learning progress over time',
-        component: null as any,
-        category: 'Analytics',
-        defaultConfig: {
-          type: 'graph-widget',
-          title: 'Progress Chart',
-          layout: { cols: 4, rows: 3 },
-          resizable: true,
-          movable: true,
-          removable: true,
-          settings: {
-            showLegend: true,
-            legendTitle: 'Subjects',
-          },
-        },
-        icon: 'trending_up',
-        tags: ['analytics', 'charts', 'progress'],
-        lazy: true,
-        loadComponent: () =>
-          import(
-            '../../widgets/graph-widget-refactored.component'
-          ).then((m) => m.GraphWidgetComponent),
-      },
+      // {
+      //   type: 'graph-widget',
+      //   name: 'Progress Chart',
+      //   description: 'Visualize your learning progress over time',
+      //   component: null as any,
+      //   category: 'Analytics',
+      //   defaultConfig: {
+      //     type: 'graph-widget',
+      //     title: 'Progress Chart',
+      //     layout: { cols: 4, rows: 3 },
+      //     resizable: true,
+      //     movable: true,
+      //     removable: true,
+      //     settings: {
+      //       showLegend: true,
+      //       legendTitle: 'Subjects',
+      //     },
+      //   },
+      //   icon: 'trending_up',
+      //   tags: ['analytics', 'charts', 'progress'],
+      //   lazy: true,
+      //   loadComponent: () =>
+      //     import(
+      //       '../../widgets/graph-widget-refactored.component'
+      //     ).then((m) => m.GraphWidgetComponent),
+      // },
       {
         type: 'tests-info-widget',
         name: 'Assessment Info',
