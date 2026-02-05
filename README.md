@@ -1,78 +1,54 @@
-# mfe-user-journey-dashboard
+# Dashboard<br><sup>MFE User Journey - Learner</sup>
 
-A user-journey micro frontend built with Angular and Module Federation.
+<img src="https://github.com/Ngx-Workshop/.github/blob/main/readme-assets/angular-gradient-wordmark.gif?raw=true" height="132" alt="Angular Logo" /> <img src="https://github.com/Ngx-Workshop/.github/blob/main/readme-assets/module-federation-logo.svg?raw=true" style="max-width: 100%;height: 132px;" alt="Module Federation" />
 
-## Overview
+Angular micro-frontend (remote) for the **Learner Dashboard** user journey in the NGX Workshop ecosystem.
 
-This micro frontend is part of the NGX Workshop ecosystem and serves as a user-journey component in the overall application architecture.
+Angular 21 standalone micro-frontend that exposes a dashboard experience as a Module Federation remote for NGX Workshop. It ships a dynamic widget orchestrator (drag-drop grid, lazy-loaded widgets, inter-widget event bus) and exposes both the shell component and route config under the remote name `ngx-seed-mfe`.
 
 ## Getting Started
 
-### Prerequisites
+- Prereqs: Node 20+ and npm.
+- Install: `npm install`
+- Develop: `npm start` (serves on http://localhost:4201 with `remoteEntry.js`)
+- Dev bundle (watch + static server): `npm run dev:bundle`
+- Tests: `npm test`
+- Build: `npm run build` (outputs to `dist/mfe-user-journey-dashboard`)
 
-- Node.js (v20.19.0 or higher)
-- npm (v8.0.0 or higher)
+### Consuming as a remote
 
-### Installation
+Add the remote to a host’s federation map:
 
-```bash
-npm install
+```js
+remotes: {
+	'ngx-seed-mfe': 'ngx-seed-mfe@http://localhost:4201/remoteEntry.js',
+}
 ```
 
-### Development
+Consume either the routed entry (`./Routes`) or the standalone component (`./Component`):
 
-To start the development server:
-
-```bash
-npm run dev:bundle
+```ts
+// Example route in a host
+{
+	path: 'dashboard',
+	loadChildren: () => import('ngx-seed-mfe/Routes').then((m) => m.Routes),
+}
 ```
 
-This will:
-- Start the webpack build in watch mode
-- Serve the bundled application on http://localhost:4201
-- Enable CORS for cross-origin requests
+## Architectural Overview
 
-### Available Scripts
+- **Entry & Bootstrap**: [src/bootstrap.ts](src/bootstrap.ts#L1-L6) bootstraps the standalone App with providers from [src/app/app.config.ts](src/app/app.config.ts#L1-L17) (HTTP client, animations, zoneless CD).
+- **App Shell**: [src/app/app.ts](src/app/app.ts#L1-L55) hosts the router/animations and wires the NGX user metadata service for auth/user context. Routes are defined in [src/app/app.routes.ts](src/app/app.routes.ts#L1-L13).
+- **Module Federation**: [webpack.config.js](webpack.config.js#L1-L48) registers the remote as `ngx-seed-mfe`, exposing `./Component` and `./Routes`, sharing Angular, Material, RxJS, and the user metadata lib.
+- **Widget Orchestrator Library**: exported via [src/app/widget-orchestrator/index.ts](src/app/widget-orchestrator/index.ts#L1-L24) and used by the demo dashboard.
+  - Registry: [services/widget-registry.service.ts](src/app/widget-orchestrator/services/widget-registry.service.ts#L1-L132) validates/organizes widget definitions, categories, and lazy loading.
+  - Orchestrator: [services/widget-orchestrator.service.ts](src/app/widget-orchestrator/services/widget-orchestrator.service.ts#L1-L191) owns widget lifecycle (create/load/destroy), configuration and data updates, and an event bus for inter-widget communication.
+  - Dashboard UI: [components/widget-dashboard.component.ts](src/app/widget-orchestrator/components/widget-dashboard.component.ts#L1-L120) renders a drag-drop, resizable grid with menus to add/save/export layouts and grid helpers for snapping.
+  - Container: [components/widget-container.component.ts](src/app/widget-orchestrator/components/widget-container.component.ts#L1-L130) provides per-widget chrome, actions (refresh/configure/remove), and error/loading boundaries before hosting the dynamic component instance.
+  - Contracts: [interfaces/widget.interface.ts](src/app/widget-orchestrator/interfaces/widget.interface.ts#L1-L93) describe widget config, layout, appearance, data sources, permissions, and lifecycle hooks.
+- **Sample Widgets**: See [src/app/widgets](src/app/widgets) for example implementations (graph, todo, tests info) used by the demo dashboard.
 
-- `npm run dev:bundle` - Start development server with watch mode
-- `npm run build` - Build the application for production
-- `npm run watch` - Build in watch mode only
-- `npm run serve:bundle` - Serve the built application
-- `npm test` - Run unit tests
+## Notes
 
-## Architecture
-
-This micro frontend uses:
-- **Angular 20+** - Frontend framework
-- **Module Federation** - For micro frontend architecture
-- **Webpack** - Module bundler and build tool
-- **TypeScript** - Type-safe JavaScript development
-
-## Module Federation Configuration
-
-The micro frontend is exposed via Module Federation and can be consumed by host applications. Check the `webpack.config.js` file for exposed modules and configuration.
-
-## Development Guidelines
-
-1. Follow the established coding standards
-2. Write unit tests for new features
-3. Use TypeScript for type safety
-4. Follow Angular best practices
-5. Keep components focused and reusable
-
-## Deployment
-
-The application is automatically deployed via GitHub Actions when changes are pushed to the main branch.
-
-## Repository
-
-- **GitHub**: https://github.com/Ngx-Workshop/mfe-user-journey-dashboard
-- **Type**: user-journey MFE
-
-## Support
-
-For questions or issues, please refer to the NGX Workshop documentation or create an issue in the repository.
-
----
-
-Generated on Tue Sep  9 19:32:49 EDT 2025 using the NGX Workshop MFE creation script.
+- Default dev server runs on port 4201; `publicHost` is set accordingly in [angular.json](angular.json#L40-L52).
+- The orchestrator relies on Angular CDK drag-drop and Material components; these are shared/singleton via federation to avoid version drift across hosts/remotes.
