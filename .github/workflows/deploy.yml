@@ -1,43 +1,64 @@
-name: Deploy Seed MFE Remote to DO Droplet
+name: Deploy mfe-user-journey-dashboard
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mfe-user-journey-dashboard-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 20
+          persist-credentials: false
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Angular MFE
-        run: npm run build -- --configuration production
-
-      - name: Copy dist to Droplet
-        uses: appleboy/scp-action@master
+      - name: Setup Node 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
+          node-version: '22'
+          check-latest: true
+          package-manager-cache: false
+
+      - name: Validate frontend deployment settings
+        env:
+          MFE_DROPLET_IP: ${{ secrets.MFE_DROPLET_IP }}
+          MFE_SSH_PRIVATE_KEY: ${{ secrets.MFE_SSH_PRIVATE_KEY }}
+          MFE_SSH_HOST_FINGERPRINT: ${{ secrets.MFE_SSH_HOST_FINGERPRINT }}
+        run: |
+          test -n "$MFE_DROPLET_IP" || { echo "Missing MFE_DROPLET_IP" >&2; exit 1; }
+          test -n "$MFE_SSH_PRIVATE_KEY" || { echo "Missing MFE_SSH_PRIVATE_KEY" >&2; exit 1; }
+          if [[ ! "$MFE_SSH_HOST_FINGERPRINT" =~ ^SHA256:[A-Za-z0-9+/]{43}$ ]]; then
+            echo "MFE_SSH_HOST_FINGERPRINT must contain only the frontend host's SHA256 fingerprint" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run build -- --configuration production
+          test -f dist/mfe-user-journey-dashboard/index.html
+
+      - name: Copy static assets to frontend
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
+        with:
+          version: '1.8.0'
           host: ${{ secrets.MFE_DROPLET_IP }}
           username: root
           key: ${{ secrets.MFE_SSH_PRIVATE_KEY }}
+          fingerprint: ${{ secrets.MFE_SSH_HOST_FINGERPRINT }}
           source: 'dist/mfe-user-journey-dashboard/*'
           target: '/opt/mfe-remotes/mfe-user-journey-dashboard/'
           strip_components: 2
-
-      - name: SSH and reload Nginx (optional)
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.MFE_DROPLET_IP }}
-          username: root
-          key: ${{ secrets.MFE_SSH_PRIVATE_KEY }}
-          script: |
-            systemctl reload nginx || true
+          overwrite: true
