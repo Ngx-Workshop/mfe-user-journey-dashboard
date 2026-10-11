@@ -1,5 +1,5 @@
 const {
-  shareAll,
+  share,
   withModuleFederationPlugin,
 } = require('@angular-architects/module-federation/webpack');
 
@@ -40,17 +40,21 @@ module.exports = withModuleFederationPlugin({
       requiredVersion: '21.1.0',
     },
 
-    // If you use Material/CDK, share them too
-    '@angular/cdk': {
-      singleton: true,
-      strictVersion: true,
-      requiredVersion: '21.1.0',
-    },
-    '@angular/material': {
-      singleton: true,
-      strictVersion: true,
-      requiredVersion: '21.1.0',
-    },
+    // Share secondary entry points so remotes use the shell's Material tokens.
+    ...share({
+      '@angular/cdk': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: '21.1.0',
+        includeSecondaries: true,
+      },
+      '@angular/material': {
+        singleton: true,
+        strictVersion: true,
+        requiredVersion: '21.1.0',
+        includeSecondaries: true,
+      },
+    }),
 
     // RxJS + tslib
     rxjs: {
